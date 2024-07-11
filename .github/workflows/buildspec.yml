@@ -28,7 +28,7 @@ jobs:
       - name: Run CodeBuild
         uses: aws-actions/aws-codebuild-run-build@v1
         with:
-          project-name: my-codebuild-job2
+          project-name: my-codebuild-job-terraform
           disable-source-override: true
           buildspec-override: |
             version: 0.2
@@ -49,7 +49,7 @@ jobs:
               build:
                 commands:
                   - terraform init 
-                  - terraform destroy -auto-approve
+                  - terraform apply -auto-approve
 
               post_build:
                 commands:
