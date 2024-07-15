@@ -6,103 +6,85 @@ provider "aws" {
 # store the terraform state file in s3
 terraform {
   backend "s3" {
-    bucket  = "my-bucket-created-with-terraform-mbf"
+    bucket  = "my-bucket-created-with-terraform-mbf-2"
     key     = "terraform.tfstate" #Name we want to give to the state file in the bucket
     region  = "us-east-1"
 
   }
 }
 
-# create default vpc if one does not exit
-resource "aws_default_vpc" "default_vpc" {
+#Defining the role that EMR can assume, with 2 policies, emr_service_rol for letting EMR assume the rol, and AmazonElasticMapReduceRole to give
+# EMR the permissions to run properly the cluster
+resource "aws_iam_role" "emr_service_role" {
+  name = "emr_service_role"
 
-  tags = {
-    Name = "default vpc"
-  }
+  assume_role_policy = <<EOF
+{
+  "Version": "2008-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "elasticmapreduce.amazonaws.com" 
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+
+  managed_policy_arns = ["arn:aws:iam::aws:policy/service-role/AmazonElasticMapReduceRole"]
 }
 
+# Define the EC2 instance profile
+resource "aws_iam_role" "emr_ec2_instance_role" {
+  name = "emr_ec2_instance_role"
 
-# use data source to get all avalablility zones in region
-data "aws_availability_zones" "available_zones" {}
-
-
-# create default subnet if one does not exit
-resource "aws_default_subnet" "default_az1" {
-  availability_zone = data.aws_availability_zones.available_zones.names[0]
-
-  tags = {
-    Name = "default subnet"
-  }
+  assume_role_policy = <<EOF
+{
+  "Version": "2008-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "ec2.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+}
+#Giving to the EC2 instances of the cluster, full access to EMR, including the management of the EC2 instances to let the EMR cluster work properly
+resource "aws_iam_role_policy_attachment" "emr_ec2_instance_role_policy_attachment" {
+  role       = aws_iam_role.emr_ec2_instance_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonElasticMapReduceFullAccess"
 }
 
-
-# create security group for the ec2 instance
-resource "aws_security_group" "ec2_security_group" {
-  name        = "ec2 security group"
-  description = "allow access on ports 80 and 22"
-  vpc_id      = aws_default_vpc.default_vpc.id
-
-  ingress {
-    description = "http access"
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    description = "ssh access"
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = -1
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = {
-    Name = "ec2 security group 2"
-  }
+#We create an IAM instance profile to associate the IAM role to all the EC2 instances from the EMR cluster
+resource "aws_iam_instance_profile" "emr_instance_profile" {
+  name = "emr_instance_profile"
+  role = aws_iam_role.emr_ec2_instance_role.name
 }
 
+resource "aws_emr_cluster" "example_cluster" {
+  name           = "Example Cluster"
+  release_label  = "emr-5.32.0"
+  applications   = ["Spark", "Hadoop"]
+  service_role   = aws_iam_role.emr_service_role.arn
 
-# use data source to get a registered amazon linux 2 ami
-data "aws_ami" "amazon_linux_2" {
-  most_recent = true
-  owners      = ["amazon"]
-
-  filter {
-    name   = "owner-alias"
-    values = ["amazon"]
+  ec2_attributes {
+    instance_profile = aws_iam_instance_profile.emr_instance_profile.arn
   }
 
-  filter {
-    name   = "name"
-    values = ["amzn2-ami-hvm*"]
+  #To manage and coordinate the cluster, it doesn't process any data
+  master_instance_group {
+    instance_type = "m5.xlarge"
   }
-}
 
-
-# launch the ec2 instance and install website
-resource "aws_instance" "ec2_instance" {
-  ami                    = data.aws_ami.amazon_linux_2.id
-  instance_type          = "t2.micro"
-  subnet_id              = aws_default_subnet.default_az1.id
-  vpc_security_group_ids = [aws_security_group.ec2_security_group.id]
-  key_name               = "resume-kp"
-
-  tags = {
-    Name = "EC2 Instance Deployed with CICD"
+  #These are the instances to process all the data
+  core_instance_group {
+    instance_type  = "m5.xlarge"
+    instance_count = 2
   }
-}
-
-
-# print the url of the server
-output "ec2_public_ipv4_url" {
-  value = join("", ["http://", aws_instance.ec2_instance.public_ip])
 }
