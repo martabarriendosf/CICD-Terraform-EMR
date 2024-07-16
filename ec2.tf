@@ -36,6 +36,43 @@ EOF
   managed_policy_arns = ["arn:aws:iam::aws:policy/service-role/AmazonElasticMapReduceRole"]
 }
 
+# Policy to allow EMR to write logs to the specified S3 bucket
+resource "aws_iam_policy" "emr_log_policy" {
+  name        = "EMRLogPolicy"
+  description = "Policy to allow EMR to write logs to S3"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:PutObject",
+        "s3:PutObjectAcl",
+        "s3:GetObject",
+        "s3:DeleteObject",
+        "s3:ListBucket"
+      ],
+      "Resource": [
+        "arn:aws:s3:::mbf-emr-systemfile",
+        "arn:aws:s3:::mbf-emr-systemfile/*"
+      ]
+    }
+  ]
+}
+EOF
+}
+
+# Attach the policy to the EMR service role
+resource "aws_iam_role_policy_attachment" "emr_service_role_policy_attachment" {
+  role       = aws_iam_role.emr_service_role.name
+  policy_arn = aws_iam_policy.emr_log_policy.arn
+}
+
+
+
+
 # Define the EC2 instance profile
 resource "aws_iam_role" "emr_ec2_instance_role" {
   name = "emr_ec2_instance_role"
@@ -72,6 +109,7 @@ resource "aws_emr_cluster" "example_cluster" {
   release_label  = "emr-5.32.0"
   applications   = ["Spark", "Hadoop"]
   service_role   = aws_iam_role.emr_service_role.arn
+  log_uri        = "s3://mbf-emr-systemfile/monthly_build/2024/logs/"
 
   ec2_attributes {
     instance_profile = aws_iam_instance_profile.emr_instance_profile.arn
