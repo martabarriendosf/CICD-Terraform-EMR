@@ -1,16 +1,61 @@
 {
-    "logs": {
-        "logs_collected": {
-            "files": {
-                "collect_list": [
-                    {
-                        "file_path": "s3://mbf-emr-systemfile/monthly_build/2024/logs/*",
-                        "log_group_name": "/emr/monthly_build_2024/logs",
-                        "log_stream_name": "{instance_id}-{filename}",
-                        "timezone": "UTC"
-                    }
-                ]
-            }
+    "agent": {
+      "metrics_collection_interval": 60,
+      "region": "us-east-1",
+      "logfile": "/opt/aws/amazon-cloudwatch-agent/logs/amazon-cloudwatch-agent.log",
+      "debug": false,
+      "run_as_user": "cwagent"
+    },
+
+    "metrics": {
+        "metrics_collected": {
+          "cpu": {
+            "measurement": [
+              "cpu_usage_idle",
+              "cpu_usage_iowait"
+            ],
+            "metrics_collection_interval": 60,
+            "totalcpu": true
+          },
+          "disk": {
+            "measurement": [
+              "used_percent"
+            ],
+            "metrics_collection_interval": 60,
+            "resources": [
+              "*"
+            ]
+          },
+          "memory": {
+            "measurement": [
+              "mem_used_percent"
+            ],
+            "metrics_collection_interval": 60
+          },
+          "network": {
+            "measurement": [
+              "bytes_in",
+              "bytes_out"
+            ],
+            "metrics_collection_interval": 60,
+            "interface": "eth0"
+          }
         }
+      },
+
+
+    "logs": {
+      "logs_collected": {
+        "files": {
+          "collect_list": [
+            {
+              "file_path": "s3://mbf-emr-systemfile/monthly_build/2024/logs/j-34T2ZPHYE6TBA/node/i-09b63d061a7b81171/bootstrap-actions/1/controller.gz",
+              "log_group_name": "/emr/monthly_build_2024/logs",
+              "timezone": "UTC"
+            }
+          ]
+        }
+      }
     }
-}
+  }
+  

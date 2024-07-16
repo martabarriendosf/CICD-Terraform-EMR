@@ -2,7 +2,7 @@ import argparse
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col
 
-def transform_data(data_source: str, output_uri: str) -> None:
+def transform_data(data_source: str, output_uri: str, log_uri: str) -> None:
     #Create or recover the Spark Session "My First App"
     with SparkSession.builder.appName("My firs App").getOrCreate() as spark:
         #Load CSV file, read it and use the first file (header)
@@ -42,6 +42,7 @@ if __name__ == "__main__":
     parser=argparse.ArgumentParser()
     parser.add_argument('--data_source')
     parser.add_argument('--output_uri')
+    parser.add_argument('--log_uri')
     args=parser.parse_args()
 
-    transform_data(args.data_source,args.output_uri)
+    transform_data(args.data_source,args.output_uri,args.log_uri)
