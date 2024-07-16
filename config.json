@@ -1,0 +1,16 @@
+{
+    "logs": {
+        "logs_collected": {
+            "files": {
+                "collect_list": [
+                    {
+                        "file_path": "s3://mbf-emr-systemfile/monthly_build/2024/logs/*",
+                        "log_group_name": "/emr/monthly_build_2024/logs",
+                        "log_stream_name": "{instance_id}-{filename}",
+                        "timezone": "UTC"
+                    }
+                ]
+            }
+        }
+    }
+}

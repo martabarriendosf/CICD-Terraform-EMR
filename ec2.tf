@@ -126,4 +126,12 @@ resource "aws_emr_cluster" "example_cluster" {
     instance_type  = "m5.xlarge"
     instance_count = 2
   }
+
+   # Define a bootstrap action to install CloudWatch Agent
+  bootstrap_action {
+    name = "Install CloudWatch Agent"
+    path = "s3://emr-cloudwatchagent-mbf/cloudwatch_agent/cloudwatch-agent-install.sh"
+
+  }
+
 }
