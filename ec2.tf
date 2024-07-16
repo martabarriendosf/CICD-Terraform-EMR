@@ -113,6 +113,7 @@ resource "aws_emr_cluster" "example_cluster" {
 
   ec2_attributes {
     instance_profile = aws_iam_instance_profile.emr_instance_profile.arn
+
   }
 
   #To manage and coordinate the cluster, it doesn't process any data
