@@ -49,7 +49,7 @@ jobs:
               build:
                 commands:
                   - terraform init 
-                  - terraform destroy -auto-approve
+                  - terraform apply -auto-approve
 
               post_build:
                 commands:
