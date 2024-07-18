@@ -38,7 +38,7 @@ EOF
 
 # Policy to allow EMR to write logs to the specified S3 bucket
 resource "aws_iam_policy" "emr_log_policy" {
-  name        = "EMRLogPolicy"
+  name        = "EMRLogPolicy2"
   description = "Policy to allow EMR to write logs to S3"
 
   policy = <<EOF
