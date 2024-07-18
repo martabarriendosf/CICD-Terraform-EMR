@@ -122,9 +122,13 @@ resource "aws_emr_cluster" "example_cluster" {
   }
 
   #These are the instances to process all the data
-  core_instance_group {
-    instance_type  = "m5.xlarge"
-    instance_count = 2
+  # Grupo de instancias principales (core) con instancias de Spot
+  core_instance_fleet {
+    name = "Core Instance Fleet"
+    target_spot_capacity    = 2 # Número de instancias de Spot para el grupo principal (core)
+    instance_type_configs{
+        instance_type = "m5.xlarge"
+      }
   }
 
    # Define a bootstrap action to install CloudWatch Agent
