@@ -134,4 +134,48 @@ resource "aws_emr_cluster" "example_cluster" {
 
   }
 
+  # Configurar las opciones de CloudWatch para el clúster EMR
+  configurations_json = <<EOF
+[
+  {
+    "Classification": "yarn-site",
+    "Properties": {
+      "yarn.log-aggregation-enable": "true",
+      "yarn.log-aggregation.retain-seconds": "604800",
+      "yarn.nodemanager.remote-app-log-dir": "s3://mbf-emr-systemfile/logs/",
+      "yarn.nodemanager.remote-app-log-dir-suffix": "logs"
+    }
+  },
+  {
+    "Classification": "emrfs-site",
+    "Properties": {
+      "fs.s3.enableServerSideEncryption": "true"
+    }
+  },
+  {
+    "Classification": "hadoop-env",
+    "Configurations": [
+      {
+        "Classification": "export",
+        "Properties": {
+          "JAVA_HOME": "/usr/lib/jvm/java-1.8.0"
+        }
+      }
+    ]
+  },
+  {
+    "Classification": "spark-log4j",
+    "Properties": {
+      "log4j.rootCategory": "INFO, console, cloudwatch",
+      "log4j.appender.cloudwatch": "com.amazonaws.services.logs.log4j.CloudWatchAppender",
+      "log4j.appender.cloudwatch.region": "us-east-1",
+      "log4j.appender.cloudwatch.logGroup": "emr-logs",
+      "log4j.appender.cloudwatch.logStream": "log-stream-name",
+      "log4j.appender.cloudwatch.layout": "org.apache.log4j.PatternLayout",
+      "log4j.appender.cloudwatch.layout.ConversionPattern": "%d{ISO8601} %p %c: %m%n"
+    }
+  }
+]
+EOF
+
 }
