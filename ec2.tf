@@ -141,9 +141,9 @@ resource "aws_emr_cluster" "example_cluster" {
         timeout_action           = "SWITCH_TO_ON_DEMAND"
         timeout_duration_minutes = 10
       }
+      }
     
   }
-
 
    # Define a bootstrap action to install CloudWatch Agent
   bootstrap_action {
