@@ -120,8 +120,8 @@ resource "aws_emr_cluster" "example_cluster" {
     instance_type_configs {
       instance_type   = "m5.xlarge"
       weighted_capacity = 1 # Peso de la capacidad para esta configuración de tipo de instancia
-      bid_price = "0.08"   # Precio máximo que estás dispuesto a pagar por la instancia Spot
     }
+  }
 
   #These are the instances to process all the data
   # Grupo de instancias principales (core) con instancias de Spot
