@@ -130,9 +130,20 @@ resource "aws_emr_cluster" "example_cluster" {
     name = "Core Instance Fleet"
     target_spot_capacity    = 2 # Número de instancias de Spot para el grupo principal (core)
     instance_type_configs{
-        instance_type = "m5.xlarge"
+      bid_price_as_percentage_of_on_demand_price = 80
+      instance_type = "m5.xlarge"
       }
+
+      launch_specifications {
+      spot_specification {
+        allocation_strategy      = "capacity-optimized"
+        block_duration_minutes   = 0
+        timeout_action           = "SWITCH_TO_ON_DEMAND"
+        timeout_duration_minutes = 10
+      }
+    
   }
+
 
    # Define a bootstrap action to install CloudWatch Agent
   bootstrap_action {
