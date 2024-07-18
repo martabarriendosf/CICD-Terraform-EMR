@@ -117,9 +117,10 @@ resource "aws_emr_cluster" "example_cluster" {
   }
   # Especificación de lanzamiento para la flota de instancias maestras (opcional)
   master_instance_fleet {
+    target_on_demand_capacity = 1
     instance_type_configs {
       instance_type   = "m5.xlarge"
-      weighted_capacity = 1 # Peso de la capacidad para esta configuración de tipo de instancia
+      
     }
   }
 
