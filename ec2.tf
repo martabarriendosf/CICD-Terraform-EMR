@@ -116,10 +116,6 @@ resource "aws_emr_cluster" "example_cluster" {
     key_name         = "emr-key-pair" 
   }
 
-  #To manage and coordinate the cluster, it doesn't process any data
-  master_instance_group {
-    instance_type = "m5.xlarge"
-  }
 
   #These are the instances to process all the data
   # Grupo de instancias principales (core) con instancias de Spot
