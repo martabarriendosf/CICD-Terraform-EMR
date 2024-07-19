@@ -49,7 +49,7 @@
         "files": {
           "collect_list": [
             {
-              "file_path": "s3://mbf-emr-systemfile/monthly_build/2024/logs/j-795MGR24VP2N/node/i-0b1c23360cd9ea6ae/bootstrap-actions/1/controller.gz",
+              "file_path": "s3://mbf-emr-systemfile-decompress/monthly_build/2024/logs/",
               "log_group_name": "/emr/monthly_build_2024/logs",
               "log_stream_name": "hola",
               "timezone": "UTC"
