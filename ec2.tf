@@ -143,6 +143,7 @@ resource "aws_emr_cluster" "example_cluster" {
   ec2_attributes {
     instance_profile = aws_iam_instance_profile.emr_instance_profile.arn
     key_name         = "emr-key-pair" 
+     subnet_id    = "subnet-015014d9e9bfd7242"
   }
   # Especificación de lanzamiento para la flota de instancias maestras (opcional)
     master_instance_group {
