@@ -104,33 +104,6 @@ resource "aws_iam_instance_profile" "emr_instance_profile" {
   role = aws_iam_role.emr_ec2_instance_role.name
 }
 
-# Define the Auto Scaling role
-resource "aws_iam_role" "emr_autoscaling_role" {
-  name = "EMR_AutoScaling_DefaultRole"
-
-  assume_role_policy = <<EOF
-{
-  "Version": "2008-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "elasticmapreduce.amazonaws.com"
-      },
-      "Action": "sts:AssumeRole"
-    }
-  ]
-}
-EOF
-
-  managed_policy_arns = ["arn:aws:iam::aws:policy/service-role/AmazonElasticMapReduceforAutoScalingRole"]
-}
-
-# Attach the AmazonElasticMapReduceforAutoScalingRole policy to the Auto Scaling role
-resource "aws_iam_role_policy_attachment" "emr_autoscaling_role_policy_attachment" {
-  role       = aws_iam_role.emr_autoscaling_role.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonElasticMapReduceforAutoScalingRole"
-}
 
 resource "aws_emr_cluster" "example_cluster" {
   name           = "Example Cluster"
@@ -143,7 +116,7 @@ resource "aws_emr_cluster" "example_cluster" {
   ec2_attributes {
     instance_profile = aws_iam_instance_profile.emr_instance_profile.arn
     key_name         = "emr-key-pair" 
-     subnet_id    = "subnet-015014d9e9bfd7242"
+    subnet_id    = "subnet-015014d9e9bfd7242"
   }
   # Especificación de lanzamiento para la flota de instancias maestras (opcional)
     master_instance_group {
@@ -160,13 +133,12 @@ resource "aws_emr_cluster" "example_cluster" {
       volumes_per_instance = 1
     }
 
-    bid_price = "0.30"
 
     autoscaling_policy = <<EOF
 {
 "Constraints": {
   "MinCapacity": 1,
-  "MaxCapacity": 2
+  "MaxCapacity": 5
 },
 "Rules": [
   {
