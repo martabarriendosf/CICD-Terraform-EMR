@@ -116,22 +116,55 @@ resource "aws_emr_cluster" "example_cluster" {
     key_name         = "emr-key-pair" 
   }
   # Especificación de lanzamiento para la flota de instancias maestras (opcional)
-  master_instance_fleet {
-    target_on_demand_capacity = 1
-    instance_type_configs {
-      instance_type   = "m5.xlarge"
-      
-    }
+ master_instance_group {
+    instance_type = "m4.large"
   }
 
-  #These are the instances to process all the data
-  # Grupo de instancias principales (core) con instancias de Spot
-  core_instance_fleet {
-    name = "Core Instance Fleet"
-    target_on_demand_capacity = 2
-    instance_type_configs{
-      instance_type = "m5.xlarge"
+  core_instance_group {
+    instance_type  = "c4.large"
+    instance_count = 1
+
+    ebs_config {
+      size                 = "40"
+      type                 = "gp2"
+      volumes_per_instance = 1
     }
+
+    bid_price = "0.30"
+
+    autoscaling_policy = <<EOF
+{
+"Constraints": {
+  "MinCapacity": 1,
+  "MaxCapacity": 2
+},
+"Rules": [
+  {
+    "Name": "ScaleOutMemoryPercentage",
+    "Description": "Scale out if YARNMemoryAvailablePercentage is less than 15",
+    "Action": {
+      "SimpleScalingPolicyConfiguration": {
+        "AdjustmentType": "CHANGE_IN_CAPACITY",
+        "ScalingAdjustment": 1,
+        "CoolDown": 300
+      }
+    },
+    "Trigger": {
+      "CloudWatchAlarmDefinition": {
+        "ComparisonOperator": "LESS_THAN",
+        "EvaluationPeriods": 1,
+        "MetricName": "YARNMemoryAvailablePercentage",
+        "Namespace": "AWS/ElasticMapReduce",
+        "Period": 300,
+        "Statistic": "AVERAGE",
+        "Threshold": 15.0,
+        "Unit": "PERCENT"
+      }
+    }
+  }
+]
+}
+EOF
   }
 
 
