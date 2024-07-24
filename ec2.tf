@@ -119,12 +119,12 @@ resource "aws_emr_cluster" "example_cluster" {
   }
   # Especificación de lanzamiento para la flota de instancias maestras (opcional)
     master_instance_group {
-    instance_type = "m4.large"
+    instance_type = "m5.xlarge"
   }
 
   core_instance_group {
-    instance_type  = "c4.large"
-    instance_count = 1
+    instance_type  = "m5.xlarge"
+    instance_count = 2
 
     ebs_config {
       size                 = "40"
@@ -156,7 +156,7 @@ resource "aws_emr_cluster" "example_cluster" {
 resource "aws_emr_instance_group" "task" {
   cluster_id     = aws_emr_cluster.example_cluster.id
   instance_count = 2
-  instance_type  = "m4.large"
-  name           = "my little instance group"
+  instance_type  = "m5.xlarge"
+  name           = "My task instance group"
   bid_price      = "0.3" # Bid price in USD for Spot instances
 }
