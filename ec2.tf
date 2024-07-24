@@ -128,22 +128,13 @@ resource "aws_emr_cluster" "example_cluster" {
   # Grupo de instancias principales (core) con instancias de Spot
   core_instance_fleet {
     name = "Core Instance Fleet"
-    target_spot_capacity    = 2 # Número de instancias de Spot para el grupo principal (core)
+    target_on_demand_capacity = 2
     instance_type_configs{
-      bid_price_as_percentage_of_on_demand_price = 80
       instance_type = "m5.xlarge"
-      }
-
-      launch_specifications {
-        spot_specification {
-          allocation_strategy      = "capacity-optimized"
-          block_duration_minutes   = 0
-          timeout_action           = "SWITCH_TO_ON_DEMAND"
-          timeout_duration_minutes = 10
-        }
-      }
-    
+    }
   }
+
+
 
    # Define a bootstrap action to install CloudWatch Agent
   bootstrap_action {
@@ -152,4 +143,15 @@ resource "aws_emr_cluster" "example_cluster" {
 
   }
 
+  
+
+}
+
+# Task instance group with Spot instances
+resource "aws_emr_instance_group" "task" {
+  cluster_id     = aws_emr_cluster.example_cluster.id
+  instance_count = 2
+  instance_type  = "m5.xlarge"
+  name           = "my little instance group"
+  bid_price      = "0.3" # Bid price in USD for Spot instances
 }
