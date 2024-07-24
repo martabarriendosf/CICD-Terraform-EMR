@@ -219,7 +219,7 @@ EOF
 resource "aws_emr_instance_group" "task" {
   cluster_id     = aws_emr_cluster.example_cluster.id
   instance_count = 2
-  instance_type  = "m5.xlarge"
+  instance_type  = "m4.large"
   name           = "my little instance group"
   bid_price      = "0.3" # Bid price in USD for Spot instances
 }
