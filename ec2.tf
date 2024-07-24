@@ -111,7 +111,6 @@ resource "aws_emr_cluster" "example_cluster" {
   applications   = ["Spark", "Hadoop"]
   service_role   = aws_iam_role.emr_service_role.arn
   log_uri        = "s3://mbf-emr-systemfile/monthly_build/2024/logs/"
-  autoscaling_role  = aws_iam_role.emr_autoscaling_role.arn
 
   ec2_attributes {
     instance_profile = aws_iam_instance_profile.emr_instance_profile.arn
