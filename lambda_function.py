@@ -35,6 +35,19 @@ def lambda_handler(event, context):
             s3.put_object(Bucket=destination_bucket_name, Key=decompressed_key, Body=decompressed_data)
 
             print(f"Archivo descomprimido subido como: {decompressed_key} a {destination_bucket_name}")
+       
+        elif not key.endswith('/'):
+            print(f"Procesando archivo no comprimido: {key}")
+
+            # Descargar archivo no comprimido desde S3
+            response = s3.get_object(Bucket=source_bucket_name, Key=key)
+            file_content = response['Body'].read()
+
+            # Subir archivo no comprimido a otro bucket de S3
+            s3.put_object(Bucket=destination_bucket_name, Key=key, Body=file_content)
+
+            print(f"Archivo no comprimido subido como: {key} a {destination_bucket_name}")
+
 
     return {
         'statusCode': 200,
